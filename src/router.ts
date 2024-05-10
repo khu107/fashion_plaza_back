@@ -27,10 +27,15 @@ router.post("/member/login", memberController.login);
 router.post(
   "/product/create",
   adminController.verifyAdmin,
-  makeUploader("members").array("productImages", 3),
+  makeUploader("products").array("productImages", 3),
   productController.createNewProduct
 );
-export default router;
+
+router.get(
+  "/product/all",
+  adminController.verifyAdmin,
+  productController.getAllProducts
+);
 
 // Users
 router.get("/user/all", adminController.verifyAdmin, adminController.getUsers);
@@ -39,3 +44,5 @@ router.post(
   adminController.verifyAdmin,
   adminController.updateChosenUser
 );
+
+export default router;

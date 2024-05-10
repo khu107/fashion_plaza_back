@@ -7,6 +7,14 @@ class ProductService {
     this.productModel = ProductModel;
   }
 
+  public async getAllProducts(): Promise<any[]> {
+    // kirib kelayotgan stringni objectid uzgartirish kerak
+
+    const result = await this.productModel.find();
+    if (!result) throw new Error("NO_DATA_FOUND");
+
+    return result;
+  }
   public async createNewProduct(input: ProductInput): Promise<Product> {
     try {
       return (await this.productModel.create(input)).toObject();
