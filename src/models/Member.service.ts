@@ -1,5 +1,11 @@
+import { shapeIntoMongooseObjectId } from "../libs/config";
 import { MemberStatus, MemberType } from "../libs/enums/member.enum";
-import { LoginInput, Member, MemberInput } from "../libs/types/member";
+import {
+  LoginInput,
+  Member,
+  MemberInput,
+  MemberUpdateInput,
+} from "../libs/types/member";
 import MemberModel from "../schema/Member.model";
 import * as bcrypt from "bcryptjs";
 
@@ -87,6 +93,23 @@ class MemberService {
     if (!isMatch) throw new Error("passport yoki email notugri");
 
     return await this.memberModel.findById(member._id).lean();
+  }
+
+  public async getUsers(): Promise<any[]> {
+    const result = await this.memberModel
+      .find({ memberType: MemberType.USER })
+      .exec();
+    if (!result) throw new Error("NO_DATA_FOUND");
+    return result;
+  }
+
+  public async updateChosenUser(input: MemberUpdateInput): Promise<Member> {
+    input._id = shapeIntoMongooseObjectId(input._id);
+    const result = await this.memberModel
+      .findByIdAndUpdate({ _id: input._id }, input, { new: true })
+      .exec();
+    if (!result) throw new Error("UPDATE_FAILED");
+    return result.toObject();
   }
 }
 
