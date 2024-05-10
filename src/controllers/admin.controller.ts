@@ -15,8 +15,13 @@ const adminController: T = {};
 adminController.proccessSignup = async (req: AdminRequest, res: Response) => {
   try {
     console.log("proccessSignup");
+
+    const file = req.file;
+    if (!file) new Error("SOMETHING_WENT_WRONG");
+
     const newMember: MemberInput = req.body;
     newMember.memberType = MemberType.ADMIN;
+    newMember.memberImage = file?.path.replace(/\\/g, "/");
     const result = await memberService.proccessSignup(newMember);
 
     // session
