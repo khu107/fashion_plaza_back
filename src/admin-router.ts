@@ -1,7 +1,7 @@
 import { Router } from "express";
 import makeUploader from "./libs/utils/uploader";
 import adminController from "./controllers/admin.controller";
-import memberController from "./controllers/member.controller";
+
 const routerAdmin = Router();
 
 // user

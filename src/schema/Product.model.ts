@@ -10,34 +10,28 @@ const productSchema = new Schema(
     productCollection: {
       type: String,
       enum: ProductCollection,
-      required: true,
+      // required: true,
     },
     productName: {
       type: String,
-      required: true,
+      // required: true,
     },
     productPrice: {
       type: Number,
-      required: true,
+      // required: true,
     },
     productLeftCount: {
       type: Number,
-      required: true,
+      // required: true,
     },
     productSize: {
       type: String,
       enum: ProductSize,
-      default: ProductSize.MIDIUM,
     },
-    // productVolume: {
-    //   type: Number,
-    //   enum: ProductVolume,
-    //   default: ProductVolume.ONE,
-    // },
+
     productColor: {
       type: String,
       enum: ProductColor,
-      default: ProductColor.WHITE,
     },
     productDesc: {
       type: String,

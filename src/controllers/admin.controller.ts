@@ -50,11 +50,11 @@ adminController.createNewProduct = async (
   res: Response
 ) => {
   try {
-    console.log("createNewProduct");
-
+    console.log("file", req.files);
     if (!req.files?.length) throw new Error("CREATE_FAILED");
 
     const data: ProductInput = req.body;
+    console.log("createNewProduct", data);
 
     data.productImages = req.files?.map((ele) => {
       return ele.path.replace(/\\/g, "/");
@@ -67,26 +67,26 @@ adminController.createNewProduct = async (
   }
 };
 
-adminController.createNewProduct = async (
-  req: ExtendedRequest,
-  res: Response
-) => {
-  try {
-    console.log("createNewProduct");
+// adminController.createNewProduct = async (
+//   req: ExtendedRequest,
+//   res: Response
+// ) => {
+//   try {
+//     console.log("createNewProduct");
 
-    if (!req.files?.length) throw new Error("CREATE_FAILED");
+//     if (!req.files?.length) throw new Error("CREATE_FAILED");
 
-    const data: ProductInput = req.body;
+//     const data: ProductInput = req.body;
 
-    data.productImages = req.files?.map((ele) => {
-      return ele.path.replace(/\\/g, "/");
-    });
-    await productService.createNewProduct(data);
-    res.send("Sucessful creation!");
-  } catch (error) {
-    console.log(error);
-    res.send(error);
-  }
-};
+//     data.productImages = req.files?.map((ele) => {
+//       return ele.path.replace(/\\/g, "/");
+//     });
+//     await productService.createNewProduct(data);
+//     res.send("Sucessful creation!");
+//   } catch (error) {
+//     console.log(error);
+//     res.send(error);
+//   }
+// };
 
 export default adminController;
