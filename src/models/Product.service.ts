@@ -7,17 +7,18 @@ class ProductService {
     this.productModel = ProductModel;
   }
 
-  public async getAllProducts(): Promise<any[]> {
+  // Admin
+  public async getAllProducts(): Promise<Product[]> {
     // kirib kelayotgan stringni objectid uzgartirish kerak
 
-    const result = await this.productModel.find();
+    const result = await this.productModel.find().exec();
     if (!result) throw new Error("NO_DATA_FOUND");
 
     return result;
   }
   public async createNewProduct(input: ProductInput): Promise<Product> {
     try {
-      return (await this.productModel.create(input)).toObject();
+      return await this.productModel.create(input);
     } catch (error) {
       console.error("Error, model: createNewProduct", error);
       throw new Error("CREATE_FAILED");

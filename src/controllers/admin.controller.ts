@@ -1,67 +1,14 @@
-import {
-  AdminRequest,
-  LoginInput,
-  MemberInput,
-  MemberUpdateInput,
-} from "../libs/types/member";
+import { ExtendedRequest, MemberUpdateInput } from "../libs/types/member";
 import { T } from "../libs/types/common";
 import MemberService from "../models/Member.service";
-import { NextFunction, Request, Response } from "express";
-import { MemberType } from "../libs/enums/member.enum";
+import { Request, Response } from "express";
+import ProductService from "../models/Product.service";
+import { ProductInput } from "../libs/types/product";
 
 const memberService = new MemberService();
+const productService = new ProductService();
 const adminController: T = {};
 
-adminController.proccessSignup = async (req: AdminRequest, res: Response) => {
-  try {
-    console.log("proccessSignup");
-
-    const file = req.file;
-    if (!file) new Error("SOMETHING_WENT_WRONG");
-
-    const newMember: MemberInput = req.body;
-    newMember.memberType = MemberType.ADMIN;
-    newMember.memberImage = file?.path.replace(/\\/g, "/");
-    const result = await memberService.proccessSignup(newMember);
-
-    // session
-    req.session.member = result;
-    req.session.save(function () {
-      res.send("ok");
-    });
-  } catch (err: any) {
-    console.log("Error, proccessSignup", err);
-    res.status(404).json({ message: err.message });
-  }
-};
-adminController.proccessLogin = async (req: AdminRequest, res: Response) => {
-  try {
-    console.log("proccessLogin");
-
-    const input: LoginInput = req.body;
-    const result = await memberService.proccessLogin(input);
-    // session
-    req.session.member = result;
-    req.session.save(function () {
-      res.send("login");
-    });
-  } catch (err: any) {
-    console.log("Error, proccessLogin", err);
-    res.status(404).json({ message: err });
-  }
-};
-
-adminController.logout = async (req: AdminRequest, res: Response) => {
-  try {
-    console.log("logout");
-    req.session.destroy(function () {
-      res.send("logout");
-    });
-  } catch (err) {
-    console.log("Error, logout", err);
-    res.status(404).json({ message: err });
-  }
-};
 adminController.getUsers = async (req: Request, res: Response) => {
   try {
     console.log("getUsers");
@@ -86,29 +33,60 @@ adminController.updateChosenUser = async (req: Request, res: Response) => {
   }
 };
 
-adminController.checkAuthSession = async (req: AdminRequest, res: Response) => {
+adminController.getAllProducts = async (req: Request, res: Response) => {
   try {
-    console.log("checkAuthSession");
-    if (req.session?.member)
-      res.send(`<script>alert("${req.session.member.memberNick}")</script>`);
-    else res.send(`<script>alert("${"NOT_AUTHENTICATED"}")</script>`);
+    console.log("getAllProducts");
+    const data = await productService.getAllProducts();
+
+    res.status(200).json({ products: data });
   } catch (err) {
-    console.log("Error, checkAuthSession", err);
-    res.send(err);
+    console.log("Error, getAllProducts", err);
+    res.status(404).json(err);
   }
 };
 
-adminController.verifyAdmin = (
-  req: AdminRequest,
-  res: Response,
-  next: NextFunction
+adminController.createNewProduct = async (
+  req: ExtendedRequest,
+  res: Response
 ) => {
-  if (req.session?.member?.memberType === MemberType.ADMIN) {
-    req.member = req.session.member;
-    next();
-  } else {
-    const message = "NOT_AUTHENTICATED";
-    res.send(message);
+  try {
+    console.log("createNewProduct");
+
+    if (!req.files?.length) throw new Error("CREATE_FAILED");
+
+    const data: ProductInput = req.body;
+
+    data.productImages = req.files?.map((ele) => {
+      return ele.path.replace(/\\/g, "/");
+    });
+    await productService.createNewProduct(data);
+    res.send("Sucessful creation!");
+  } catch (error) {
+    console.log(error);
+    res.send(error);
   }
 };
+
+adminController.createNewProduct = async (
+  req: ExtendedRequest,
+  res: Response
+) => {
+  try {
+    console.log("createNewProduct");
+
+    if (!req.files?.length) throw new Error("CREATE_FAILED");
+
+    const data: ProductInput = req.body;
+
+    data.productImages = req.files?.map((ele) => {
+      return ele.path.replace(/\\/g, "/");
+    });
+    await productService.createNewProduct(data);
+    res.send("Sucessful creation!");
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+};
+
 export default adminController;

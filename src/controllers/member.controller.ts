@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { T } from "../libs/types/common";
 import MemberService from "../models/Member.service";
-import { LoginInput, MemberInput } from "../libs/types/member";
+import { ExtendedRequest, LoginInput, MemberInput } from "../libs/types/member";
 import { AUTH_TIMER } from "../libs/config";
 import AuthService from "../models/Auth.service";
 
@@ -44,6 +44,54 @@ memberController.login = async (req: Request, res: Response) => {
     res.status(404).json({
       message: error.message,
     });
+  }
+};
+
+memberController.logout = (req: Request, res: Response) => {
+  try {
+    console.log("logout");
+    res.cookie("accessToken", null, { maxAge: 0, httpOnly: true });
+    res.status(200).json({ logout: true });
+  } catch (error: any) {
+    console.log("Error, logout", error);
+    res.status(404).json({
+      message: error.message,
+    });
+  }
+};
+
+memberController.verifyAuth = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.cookies["accessToken"];
+    if (token) req.member = await authService.checkAuth(token);
+
+    if (!req.member) throw new Error("NOT_AUTHENTICATED");
+
+    next();
+  } catch (error: any) {
+    console.log("Error, verifyAuth", error);
+    res.status(404).json({
+      message: error.message,
+    });
+  }
+};
+
+memberController.retrieveAuth = async (
+  req: ExtendedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.cookies["accessToken"];
+    if (token) req.member = await authService.checkAuth(token);
+    next();
+  } catch (err) {
+    console.log("Error, retrieveAuth", err);
+    next();
   }
 };
 export default memberController;

@@ -52,50 +52,12 @@ class MemberService {
 
     if (!isMatch) throw new Error("parol yoki email ni tekshiring!!!");
 
-    return await this.memberModel.findById(member._id).lean();
+    return await this.memberModel.findById(member._id).lean().exec();
   }
 
   // Admin
 
-  public async proccessSignup(input: MemberInput): Promise<Member> {
-    const exist = await this.memberModel
-      .findOne({
-        memberType: MemberType.ADMIN,
-      })
-      .exec();
-    if (exist) throw new Error("Admin mavjud");
-
-    const salt = await bcrypt.genSalt();
-    input.memberPassword = await bcrypt.hash(input.memberPassword, salt);
-    try {
-      const result = await this.memberModel.create(input);
-      return result.toObject();
-    } catch (err) {
-      console.log("Error: proccessSignup:", err);
-
-      throw err;
-    }
-  }
-
-  public async proccessLogin(input: LoginInput): Promise<Member> {
-    const member = await this.memberModel
-      .findOne(
-        { memberEmail: input.memberEmail },
-        { memberEmail: 1, memberPassword: 1 }
-      )
-      .exec();
-    if (!member) throw new Error("bunday Amin mavjud emas");
-    const isMatch = await bcrypt.compare(
-      input.memberPassword,
-      member.memberPassword
-    );
-
-    if (!isMatch) throw new Error("passport yoki email notugri");
-
-    return await this.memberModel.findById(member._id).lean();
-  }
-
-  public async getUsers(): Promise<any[]> {
+  public async getUsers(): Promise<Member[]> {
     const result = await this.memberModel
       .find({ memberType: MemberType.USER })
       .exec();
@@ -109,7 +71,7 @@ class MemberService {
       .findByIdAndUpdate({ _id: input._id }, input, { new: true })
       .exec();
     if (!result) throw new Error("UPDATE_FAILED");
-    return result.toObject();
+    return result;
   }
 }
 
